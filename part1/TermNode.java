@@ -8,4 +8,12 @@ public class TermNode implements Node {
 		this.factorNode = factorNode;
 		this.term2Node = term2Node;
 	}
+
+	@Override
+	public int value() {
+		if(term2Node == null)
+			return factorNode.value();
+		else
+			return factorNode.value() & term2Node.value();
+	}
 }

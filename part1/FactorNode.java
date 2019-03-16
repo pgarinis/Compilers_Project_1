@@ -1,11 +1,20 @@
 package part1;
 
 public class FactorNode implements Node {
-	public char c;
-	public ExprNode exprNode;
+	private int num;
+	private ExprNode exprNode;
 	
 	public FactorNode(char token, ExprNode exprNode){
-		this.c = token;
+		this.num = token - '0';
 		this.exprNode = exprNode;
 	}
+
+	@Override
+	public int value() {
+		if(exprNode == null)
+			return num;
+		else
+			return exprNode.value();
+	}	
+	
 }

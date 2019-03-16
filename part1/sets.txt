@@ -1,0 +1,14 @@
+////FIRST, FOLLOW sets
+//private static HashMap<String, Set<Character>> FIRST = new HashMap<String, Set<Character>>();
+//private static HashMap<String, Set<Character>> FOLLOW = new HashMap<String, Set<Character>>();
+//FIRST.put("expr", new HashSet<>(Arrays.asList('(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')));
+//FIRST.put("term", new HashSet<>(Arrays.asList('(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')));
+//FIRST.put("factor", new HashSet<>(Arrays.asList('(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')));
+//FIRST.put("expr2", new HashSet<>(Arrays.asList('^')));
+//FIRST.put("term2", new HashSet<>(Arrays.asList('&')));
+//
+//FOLLOW.put("expr", new HashSet<>(Arrays.asList('\n', EOF)));
+//FOLLOW.put("term", new HashSet<>(Arrays.asList('^', '\n', EOF)));
+//FOLLOW.put("factor", new HashSet<>(Arrays.asList('&', '^', '\n', EOF)));
+//FOLLOW.put("expr2", new HashSet<>(Arrays.asList('\n', EOF)));
+//FOLLOW.put("term2", new HashSet<>(Arrays.asList('^', '\n', EOF)));
