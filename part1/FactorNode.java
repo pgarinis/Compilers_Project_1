@@ -16,5 +16,4 @@ public class FactorNode implements Node {
 		else
 			return exprNode.value();
 	}	
-	
 }

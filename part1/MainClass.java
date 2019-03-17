@@ -4,37 +4,36 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class MainClass {
-	//token for input and (casted) EOF
+	//token will be used to read input
 	private static char token;
 	private static char EOF = (char) -1;
+	//stack will be used to construct the parse tree
 	private static Stack<Node> stack = new Stack<Node>(); 
 
 	public static void main(String[] args) throws IOException{
-
+//		for testing purposes
+//		int [] array = {4, 4, 1, 3, 2, 8, 2, 3, 1, 3, 2, 8, 0, 6, 4, 15};
+//		int i = 0;
 		nextToken();
 		while(true) {
 			if(expr() && (token == EOF || token == '\n')) {
 				ExprNode exprNode = (ExprNode)stack.pop();
 				System.out.println(exprNode.value());
+//				if(exprNode.value() == array[i++])
+//					System.out.println(i + " OK");
+//				else
+//					System.out.println("ERROR");
 				nextToken();
 			}
 			else {
 				System.out.println("Parse error");
 				break;
 			}
-				
 		}
-		
 	}
 	
-	//expr -> term expr2
-	//term -> factor term2
-	//expr2-> ^ term expr2 | e
-	//term2-> & factor term2 | e
-	//factor-> (expr) | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-	
-	
 	private static boolean expr() throws IOException {
+		//expr -> term expr2
 		if(term() && expr2()) {
 			Expr2Node expr2Node = (Expr2Node) stack.pop();
 			TermNode termNode = (TermNode) stack.pop();
@@ -46,7 +45,7 @@ public class MainClass {
 	}
 
 	private static boolean term() throws IOException {
-		//System.out.println("term");
+		//term -> factor term2
 		if(factor() && term2()) {
 			Term2Node term2Node = (Term2Node) stack.pop();
 			FactorNode factorNode = (FactorNode) stack.pop();
@@ -58,7 +57,7 @@ public class MainClass {
 	}
 
 	private static boolean factor() throws IOException {
-		//System.out.println("factor");
+		//factor-> (expr) | 0 | ... | 9
 		if(token >='0' && token <='9') {
 			FactorNode  factorNode= new FactorNode(token, null);
 			stack.push(factorNode);
@@ -74,13 +73,11 @@ public class MainClass {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
 	private static boolean term2() throws IOException {
 		//term2-> & factor term2 | e
-		//System.out.println("term2");
 		if(token == '&') {
 			nextToken();
 			if(factor() && term2()) {
@@ -91,15 +88,12 @@ public class MainClass {
 				return true;
 			}
 		}
-		
 		stack.push(null);
 		return true;
-		
 	}
 
 	private static boolean expr2() throws IOException {
 		//expr2-> ^ term expr2 | e
-		//System.out.println("expr2");
 		if(token == '^') {
 			nextToken();
 			if(term() && expr2()) {
@@ -110,7 +104,6 @@ public class MainClass {
 				return true;
 			}
 		}
-		
 		stack.push(null);
 		return true;
 	}
