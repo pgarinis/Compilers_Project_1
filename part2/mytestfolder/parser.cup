@@ -1,0 +1,122 @@
+/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
+/**
+ *  Package and Import Specifications
+ */
+import java_cup.runtime.*;
+
+/**
+ *  Usercode Components
+ */
+parser code {:
+    // Connect this parser to a scanner!
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+
+    //flag is set to true when main begins
+    static boolean flag = false;     
+:}
+
+/* define how to connect to the scanner! */
+scan with {: return s.next_token(); :};
+
+/**
+
+ *  Symbol Lists
+ */
+
+/* Terminals (tokens returned by the scanner). */
+terminal            ELSE, IF, PREFIX, SUFFIX, PLUS, LBRACK, RBRACK, LPAREN, RPAREN, COMMA, IDENT;
+terminal String     STRING_LITERAL;
+
+
+/*  Non terminals */
+non terminal String definition_list;
+non terminal String program, definition, branch, fun_args, expr, choose, concat, if_expr, fix;
+/**
+ *  Precedence Declarations
+ */
+
+/**
+ *  The Grammar Rules
+ */
+program			::= definition_list:d 
+					{:
+					RESULT = d;
+					System.out.println("public class Main {\n"+RESULT+"}\n}\n");
+					:}
+;
+definition_list ::= definition:d definition_list:dl {: RESULT = d+dl; :}
+                  | {: RESULT = ""; :}
+;
+definition      ::= IDENT:i LPAREN fun_args:f RPAREN branch:b
+	            	{:
+						if(b!=";\n"){ //its function definition
+							//add "String " before every arg
+							String []arrayYeet=f.split(",");
+							if(arrayYeet[0]!="")
+							f="String "+arrayYeet[0];
+							for(int ii = 1; ii < arrayYeet.length; ii++)
+								f = f + ", String " + arrayYeet[ii];
+							RESULT = "public static String "+ i+"("+f+")"+b;
+						}
+						else{ //its function call at main
+							if(flag==false){ //first function call at main
+								RESULT =  "public static void main(String args[]){\n"
+									   + "System.out.println("+i+"("+f+")"+")"+b; 
+								flag = true;
+							}
+							else //function call at main, after the first one
+								RESULT ="System.out.println("+i+"("+f+")"+")"+b; 
+						}
+					:} 
+;
+branch			::= LBRACK expr:e RBRACK {: RESULT = "{\n"+"return "+e+";\n}\n"; :} //functions body
+		  		  | 					 {: RESULT = ";\n"; :} //it was a function call at main
+;
+fun_args        ::= expr:e fun_args:f       {: RESULT = e+f; :}
+                  | COMMA expr:e fun_args:f {: RESULT = ", "+e+f; :}
+				  |                    	    {: RESULT = ""; :}
+;
+expr            ::= STRING_LITERAL:s  {: RESULT = s; :}
+                  | IDENT:i choose:c  {: RESULT = i+c; :}
+                  | if_expr:i         {: RESULT = i; :}
+;
+choose			::= LPAREN fun_args:f RPAREN {: RESULT = "("+f+")"; :}
+				  | concat:c                 {: RESULT = c; :}
+;
+concat          ::= PLUS IDENT:i concat:c {: RESULT = " + "+i+c; :}
+                  | 			  		  {: RESULT = ""; :}	
+;
+if_expr         ::= IF LPAREN expr:e1 fix:f expr:e2 RPAREN //formated like this for readability; idents don't matter
+						expr:e3
+					ELSE
+						expr:e4
+				  //convert if..else.. to ternary operator
+		          {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :} 
+;
+fix 			::= SUFFIX {: RESULT = "endsWith"; :}
+		  		  | PREFIX {: RESULT = "startsWith"; :}
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
