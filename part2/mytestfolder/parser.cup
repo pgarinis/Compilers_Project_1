@@ -77,15 +77,15 @@ fun_args        ::= expr:e fun_args:f       {: RESULT = e+f; :}
                   | COMMA expr:e fun_args:f {: RESULT = ", "+e+f; :}
 				  |                    	    {: RESULT = ""; :}
 ;
-expr            ::= STRING_LITERAL:s  {: RESULT = s; :}
-                  | IDENT:i choose:c  {: RESULT = i+c; :}
-                  | if_expr:i         {: RESULT = i; :}
+expr            ::= STRING_LITERAL:s concat:c  {: RESULT = s+c; :}
+                  | IDENT:i choose:c concat:c2 {: RESULT = i+c+c2; :}
+                  | if_expr:i        		   {: RESULT = i; :} //if_expressions can't handle concat in this language
 ;
-choose			::= LPAREN fun_args:f RPAREN {: RESULT = "("+f+")"; :}
-				  | concat:c                 {: RESULT = c; :}
+choose			::= LPAREN fun_args:f RPAREN {: RESULT = "("+f+")"; :} //function call
+				  | {: RESULT=""; :}//just identifier
 ;
-concat          ::= PLUS IDENT:i concat:c {: RESULT = " + "+i+c; :}
-                  | 			  		  {: RESULT = ""; :}	
+concat          ::= PLUS expr:i {: RESULT = " + "+i; :}
+                  | 			{: RESULT = ""; :}	
 ;
 if_expr         ::= IF LPAREN expr:e1 fix:f expr:e2 RPAREN //formated like this for readability; idents don't matter
 						expr:e3
