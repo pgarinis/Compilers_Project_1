@@ -30,8 +30,12 @@ terminal String     STRING_LITERAL;
 
 
 /*  Non terminals */
+/*
 non terminal String definition_list;
 non terminal String program, definition, branch, fun_args, expr, choose, concat, if_expr, fix;
+*/
+non terminal String program, fun_def, fun_def_list, main_calls_list, def_args, fun_def_expr, main_call, main_args;
+non terminal String more1, concat1, concat2, if_expr, choose, fix, more2, def_arg, main_arg;
 /**
  *  Precedence Declarations
  */
@@ -39,84 +43,62 @@ non terminal String program, definition, branch, fun_args, expr, choose, concat,
 /**
  *  The Grammar Rules
  */
-program			::= definition_list:d 
-					{:
-					RESULT = d;
-					System.out.println("public class Main {\n"+RESULT+"}\n}\n");
-					:}
+program			::= fun_def_list:f {: System.out.println("public class Main {\n"+f+"}\n"); :}
 ;
-definition_list ::= definition:d definition_list:dl {: RESULT = d+dl; :}
-                  | {: RESULT = ""; :}
+fun_def_list	::= fun_def:f1 fun_def_list:f2 {: RESULT = f1 + f2; :}
+				  | main_calls_list:m          {: RESULT = "\tpublic static void main(String args[]){\n" + m + "\t}\n"; :}
 ;
-definition      ::= IDENT:i LPAREN fun_args:f RPAREN branch:b
-	            	{:
-						if(b!=";\n"){ //its function definition
-							//add "String " before every arg
-							String []arrayYeet=f.split(",");
-							if(arrayYeet[0]!="")
-							f="String "+arrayYeet[0];
-							for(int ii = 1; ii < arrayYeet.length; ii++)
-								f = f + ", String " + arrayYeet[ii];
-							RESULT = "public static String "+ i+"("+f+")"+b;
-						}
-						else{ //its function call at main
-							if(flag==false){ //first function call at main
-								RESULT =  "public static void main(String args[]){\n"
-									   + "System.out.println("+i+"("+f+")"+")"+b; 
-								flag = true;
-							}
-							else //function call at main, after the first one
-								RESULT ="System.out.println("+i+"("+f+")"+")"+b; 
-						}
-					:} 
+main_calls_list	::= main_call:m1 main_calls_list:m2 {: RESULT = m1 + m2; :}
+				  |{: RESULT = ""; :}
 ;
-branch			::= LBRACK expr:e RBRACK {: RESULT = "{\n"+"return "+e+";\n}\n"; :} //functions body
-		  		  | 					 {: RESULT = ";\n"; :} //it was a function call at main
+fun_def			::= IDENT:i LPAREN def_args:d RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"("+d+"){\n"+"\t\treturn "+f+";\n\t}\n"; :}
+				  | IDENT:i LPAREN  RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"(){\n"+"\t\treturn "+f+";\n\t}\n"; :}
+				  
 ;
-fun_args        ::= expr:e fun_args:f       {: RESULT = e+f; :}
-                  | COMMA expr:e fun_args:f {: RESULT = ", "+e+f; :}
-				  |                    	    {: RESULT = ""; :}
+main_call		::= IDENT:i LPAREN main_args:m RPAREN {: RESULT = "\t\tSystem.out.println("+i+"("+m+")"+");\n"; :}
+				  | IDENT:i LPAREN  RPAREN  {: RESULT = "\t\tSystem.out.println("+i+"()"+");\n"; :}
 ;
-expr            ::= STRING_LITERAL:s concat:c  {: RESULT = s+c; :}
-                  | IDENT:i choose:c concat:c2 {: RESULT = i+c+c2; :}
-                  | if_expr:i        		   {: RESULT = i; :} //if_expressions can't handle concat in this language
+/*******/
+def_arg			::= IDENT:i {: RESULT = "String " + i; :}
 ;
-choose			::= LPAREN fun_args:f RPAREN {: RESULT = "("+f+")"; :} //function call
-				  | {: RESULT=""; :}//just identifier
+def_args		::= def_arg:d more1:m {: RESULT = d + m; :}
 ;
-concat          ::= PLUS expr:i {: RESULT = " + "+i; :}
-                  | 			{: RESULT = ""; :}	
+more1			::= COMMA def_arg:d more1:m {: RESULT = ", " + d + m; :}
+				  |{: RESULT = ""; :}
 ;
-if_expr         ::= IF LPAREN expr:e1 fix:f expr:e2 RPAREN //formated like this for readability; idents don't matter
-						expr:e3
+/*******/
+fun_def_expr	::= STRING_LITERAL:s concat1:c {: RESULT = s + c; :} 
+				  | IDENT:i choose:c1 concat1:c2 {: RESULT = i + c1 + c2; :}
+				  | if_expr:i {: RESULT = i; :}
+;
+concat1			::= PLUS fun_def_expr:f {: RESULT = " + " + f; :}
+				  |{: RESULT = ""; :}
+;
+choose			::= LPAREN fun_def_expr:f RPAREN {: RESULT = "("+f+")"; :}//function call
+				  | LPAREN RPAREN{: RESULT = "()"; :}
+				  | {: RESULT = ""; :}//just identifier
+;
+if_expr         ::= IF LPAREN fun_def_expr:e1 fix:f fun_def_expr:e2 RPAREN //formated like this for readability; idents don't matter
+						fun_def_expr:e3
 					ELSE
-						expr:e4
-				  //convert if..else.. to ternary operator
-		          {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :} 
+						fun_def_expr:e4
+				  {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :} 
 ;
 fix 			::= SUFFIX {: RESULT = "endsWith"; :}
 		  		  | PREFIX {: RESULT = "startsWith"; :}
+;  
+/*******/
+main_arg		::= STRING_LITERAL:s concat2:c {: RESULT = s + c; :}
+				  | IDENT:i LPAREN main_args:m RPAREN concat2:c {: RESULT = i +"("+m+")"+ c; :}
+				  | IDENT:i LPAREN  RPAREN{: RESULT = i + "()"; :}
 ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+main_args		::=  main_arg:m1 more2:m2 {: RESULT = m1 + m2; :}
+;
+more2			::= COMMA main_arg:m1 more2:m2{: RESULT = ", " + m1 + m2; :}
+				  | {: RESULT = ""; :}
+;
+concat2			::= PLUS main_arg:m{: RESULT = " + " + m; :}
+				  |{: RESULT = ""; :}
+;
+/*******/
 

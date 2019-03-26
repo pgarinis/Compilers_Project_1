@@ -1,19 +1,15 @@
-findLangType(langName,y) {
-        if ("Java" prefix langName)
-            if(langName prefix "Java")
-                "Static"
-            else
-                if("script" suffix langName)
-                    "Dynamic" + y + "xd"
-                else
-                    "Unknown"
-        else
-            if ("script" suffix langName)
-                "Probably Dynamic"
-            else
-                "Unknown"
+name()  {
+        "John"
+    }
+    
+    surname() {
+        "Doe"+ "Kappa"
+    }
+    
+    fullname(first_name, sep, last_name) {
+        first_name + sep + last_name
     }
 
-    findLangType("Java","PEPEGA")
-    findLangType("Javascript", "PEPEGA2")
-    findLangType("Typescript", "PEPEGA3")
+    name()
+    surname()
+    fullname(name(), " ", surname())

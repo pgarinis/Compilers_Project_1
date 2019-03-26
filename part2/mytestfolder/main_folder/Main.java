@@ -1,11 +1,17 @@
 public class Main {
-public static String findLangType(String langName, String  y){
-return ((langName.startsWith("Java"))?(("Java".startsWith(langName))?"Static":((langName.endsWith("script"))?"Dynamic" + y + "xd":"Unknown")):((langName.endsWith("script"))?"Probably Dynamic":"Unknown"));
-}
-public static void main(String args[]){
-System.out.println(findLangType("Java", "PEPEGA"));
-System.out.println(findLangType("Javascript", "PEPEGA2"));
-System.out.println(findLangType("Typescript", "PEPEGA3"));
-}
+	public static String name(){
+		return "John";
+	}
+	public static String surname(){
+		return "Doe" + "Kappa";
+	}
+	public static String fullname(String first_name, String sep, String last_name){
+		return first_name + sep + last_name;
+	}
+	public static void main(String args[]){
+		System.out.println(name());
+		System.out.println(surname());
+		System.out.println(fullname(name(), " ", surname()));
+	}
 }
 
