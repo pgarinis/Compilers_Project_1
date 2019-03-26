@@ -34,8 +34,8 @@ terminal String     STRING_LITERAL;
 non terminal String definition_list;
 non terminal String program, definition, branch, fun_args, expr, choose, concat, if_expr, fix;
 */
-non terminal String program, fun_def, fun_def_list, main_calls_list, def_args, fun_def_expr, main_call, main_args;
-non terminal String more1, concat1, concat2, if_expr, choose, fix, more2, def_arg, main_arg;
+non terminal String program, fun_def, fun_def_list, main_expr_list, fun_def_expr, more3;
+non terminal String more1, concat1, concat2, if_expr, choose, fix, more2, def_arg, main_expr, if_expr_main;
 /**
  *  Precedence Declarations
  */
@@ -46,22 +46,17 @@ non terminal String more1, concat1, concat2, if_expr, choose, fix, more2, def_ar
 program			::= fun_def_list:f {: System.out.println("public class Main {\n"+f+"}\n"); :}
 ;
 fun_def_list	::= fun_def:f1 fun_def_list:f2 {: RESULT = f1 + f2; :}
-				  | main_calls_list:m          {: RESULT = "\tpublic static void main(String args[]){\n" + m + "\t}\n"; :}
+				  | main_expr_list:m          {: RESULT = "\tpublic static void main(String args[]){\n" + m + "\t}\n"; :}
 ;
-main_calls_list	::= main_call:m1 main_calls_list:m2 {: RESULT = m1 + m2; :}
+main_expr_list	::= main_expr:m1 main_expr_list:m2 {: RESULT = "\t\tSystem.out.println("+m1+");\n" + m2; :}
 				  |{: RESULT = ""; :}
 ;
-fun_def			::= IDENT:i LPAREN def_args:d RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"("+d+"){\n"+"\t\treturn "+f+";\n\t}\n"; :}
+fun_def			::= IDENT:i LPAREN def_arg:d more1:m RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"("+d+m+"){\n"+"\t\treturn "+f+";\n\t}\n"; :}
 				  | IDENT:i LPAREN  RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"(){\n"+"\t\treturn "+f+";\n\t}\n"; :}
-				  
 ;
-main_call		::= IDENT:i LPAREN main_args:m RPAREN {: RESULT = "\t\tSystem.out.println("+i+"("+m+")"+");\n"; :}
-				  | IDENT:i LPAREN  RPAREN  {: RESULT = "\t\tSystem.out.println("+i+"()"+");\n"; :}
-;
+
 /*******/
 def_arg			::= IDENT:i {: RESULT = "String " + i; :}
-;
-def_args		::= def_arg:d more1:m {: RESULT = d + m; :}
 ;
 more1			::= COMMA def_arg:d more1:m {: RESULT = ", " + d + m; :}
 				  |{: RESULT = ""; :}
@@ -74,9 +69,12 @@ fun_def_expr	::= STRING_LITERAL:s concat1:c {: RESULT = s + c; :}
 concat1			::= PLUS fun_def_expr:f {: RESULT = " + " + f; :}
 				  |{: RESULT = ""; :}
 ;
-choose			::= LPAREN fun_def_expr:f RPAREN {: RESULT = "("+f+")"; :}//function call
+choose			::= LPAREN fun_def_expr:f more3:m RPAREN {: RESULT = "("+f+m+")"; :}//function call
 				  | LPAREN RPAREN{: RESULT = "()"; :}
 				  | {: RESULT = ""; :}//just identifier
+;
+more3			::= COMMA fun_def_expr:m1 more3:m2{: RESULT = ", " + m1 + m2; :}
+				  | {: RESULT = ""; :}
 ;
 if_expr         ::= IF LPAREN fun_def_expr:e1 fix:f fun_def_expr:e2 RPAREN //formated like this for readability; idents don't matter
 						fun_def_expr:e3
@@ -88,17 +86,22 @@ fix 			::= SUFFIX {: RESULT = "endsWith"; :}
 		  		  | PREFIX {: RESULT = "startsWith"; :}
 ;  
 /*******/
-main_arg		::= STRING_LITERAL:s concat2:c {: RESULT = s + c; :}
-				  | IDENT:i LPAREN main_args:m RPAREN concat2:c {: RESULT = i +"("+m+")"+ c; :}
-				  | IDENT:i LPAREN  RPAREN{: RESULT = i + "()"; :}
+main_expr		::= STRING_LITERAL:s concat2:c {: RESULT = s + c; :}
+				  | IDENT:i LPAREN main_expr:m1 more2:m2 RPAREN concat2:c {: RESULT = i +"("+m1+m2+")"+ c; :}
+				  | IDENT:i LPAREN  RPAREN concat2:c{: RESULT = i + "()"+c; :}
+				  | if_expr_main:i{: RESULT = i; :}
 ;
-main_args		::=  main_arg:m1 more2:m2 {: RESULT = m1 + m2; :}
-;
-more2			::= COMMA main_arg:m1 more2:m2{: RESULT = ", " + m1 + m2; :}
+more2			::= COMMA main_expr:m1 more2:m2{: RESULT = ", " + m1 + m2; :}
 				  | {: RESULT = ""; :}
 ;
-concat2			::= PLUS main_arg:m{: RESULT = " + " + m; :}
+concat2			::= PLUS main_expr:m{: RESULT = " + " + m; :}
 				  |{: RESULT = ""; :}
+;
+if_expr_main	::=IF LPAREN main_expr:e1 fix:f main_expr:e2 RPAREN //formated like this for readability; idents don't matter
+						main_expr:e3
+					ELSE
+						main_expr:e4
+				 {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :}
 ;
 /*******/
 
