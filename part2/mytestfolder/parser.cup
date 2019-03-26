@@ -10,10 +10,7 @@ import java_cup.runtime.*;
 parser code {:
     // Connect this parser to a scanner!
     Scanner s;
-    Parser(Scanner s){ this.s=s; }
-
-    //flag is set to true when main begins
-    static boolean flag = false;     
+    Parser(Scanner s){ this.s=s; }  
 :}
 
 /* define how to connect to the scanner! */
@@ -45,63 +42,89 @@ non terminal String more1, concat1, concat2, if_expr, choose, fix, more2, def_ar
  */
 program			::= fun_def_list:f {: System.out.println("public class Main {\n"+f+"}\n"); :}
 ;
-fun_def_list	::= fun_def:f1 fun_def_list:f2 {: RESULT = f1 + f2; :}
-				  | main_expr_list:m          {: RESULT = "\tpublic static void main(String args[]){\n" + m + "\t}\n"; :}
+fun_def_list	::= fun_def:f1 fun_def_list:f2 
+					{: RESULT = f1 + f2; :}
+				  | main_expr:m1 main_expr_list:m2 //at least one main expression must be given
+					{: RESULT = "\tpublic static void main(String args[]){\n" + "\t\tSystem.out.println("+m1+");\n" + m2 + "\t}\n"; :}
 ;
-main_expr_list	::= main_expr:m1 main_expr_list:m2 {: RESULT = "\t\tSystem.out.println("+m1+");\n" + m2; :}
-				  |{: RESULT = ""; :}
+main_expr_list	::= main_expr:m1 main_expr_list:m2
+					{: RESULT = "\t\tSystem.out.println("+m1+");\n" + m2; :}
+				  | {: RESULT = ""; :}
 ;
-fun_def			::= IDENT:i LPAREN def_arg:d more1:m RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"("+d+m+"){\n"+"\t\treturn "+f+";\n\t}\n"; :}
-				  | IDENT:i LPAREN  RPAREN LBRACK fun_def_expr:f RBRACK {: RESULT = "\tpublic static String "+i+"(){\n"+"\t\treturn "+f+";\n\t}\n"; :}
+fun_def			::= IDENT:i LPAREN def_arg:d more1:m RPAREN LBRACK fun_def_expr:f RBRACK
+					{: RESULT = "\tpublic static String "+i+"("+d+m+"){\n"+"\t\treturn "+f+";\n\t}\n"; :}
+				  | IDENT:i LPAREN  RPAREN LBRACK fun_def_expr:f RBRACK
+					{: RESULT = "\tpublic static String "+i+"(){\n"+"\t\treturn "+f+";\n\t}\n"; :}
 ;
 
 /*******/
-def_arg			::= IDENT:i {: RESULT = "String " + i; :}
+def_arg			::= IDENT:i //only identifiers can exist in a function definition's 1st line
+					{: RESULT = "String " + i; :} 
 ;
-more1			::= COMMA def_arg:d more1:m {: RESULT = ", " + d + m; :}
-				  |{: RESULT = ""; :}
-;
-/*******/
-fun_def_expr	::= STRING_LITERAL:s concat1:c {: RESULT = s + c; :} 
-				  | IDENT:i choose:c1 concat1:c2 {: RESULT = i + c1 + c2; :}
-				  | if_expr:i {: RESULT = i; :}
-;
-concat1			::= PLUS fun_def_expr:f {: RESULT = " + " + f; :}
-				  |{: RESULT = ""; :}
-;
-choose			::= LPAREN fun_def_expr:f more3:m RPAREN {: RESULT = "("+f+m+")"; :}//function call
-				  | LPAREN RPAREN{: RESULT = "()"; :}
-				  | {: RESULT = ""; :}//just identifier
-;
-more3			::= COMMA fun_def_expr:m1 more3:m2{: RESULT = ", " + m1 + m2; :}
+more1			::= COMMA def_arg:d more1:m 
+					{: RESULT = ", " + d + m; :}
 				  | {: RESULT = ""; :}
 ;
-if_expr         ::= IF LPAREN fun_def_expr:e1 fix:f fun_def_expr:e2 RPAREN //formated like this for readability; idents don't matter
+/*******/
+//possible expressions for function definition's body
+fun_def_expr	::= STRING_LITERAL:s concat1:c //string literal
+					{: RESULT = s + c; :} 
+				  | IDENT:i choose:c1 concat1:c2 //identifier or functioncall
+					{: RESULT = i + c1 + c2; :} 
+				  | if_expr:i //if expression
+					{: RESULT = i; :} 
+;
+concat1			::= PLUS fun_def_expr:f
+					{: RESULT = " + " + f; :}
+				  | {: RESULT = ""; :}
+;
+choose			::= LPAREN fun_def_expr:f more3:m RPAREN //function call with args
+					{: RESULT = "("+f+m+")"; :} 
+				  | LPAREN RPAREN //function call without args
+					{: RESULT = "()"; :}
+				  | {: RESULT = ""; :} //just identifier
+;
+more3			::= COMMA fun_def_expr:m1 more3:m2
+					{: RESULT = ", " + m1 + m2; :}
+				  | {: RESULT = ""; :}
+;
+if_expr         ::= IF LPAREN fun_def_expr:e1 fix:f fun_def_expr:e2 RPAREN 
 						fun_def_expr:e3
 					ELSE
 						fun_def_expr:e4
-				  {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :} 
+					//formated like this for readability; idents don't matter
+				   {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :} //convert to ternary op
 ;
-fix 			::= SUFFIX {: RESULT = "endsWith"; :}
-		  		  | PREFIX {: RESULT = "startsWith"; :}
+fix 			::= SUFFIX 
+					{: RESULT = "endsWith"; :}
+		  		  | PREFIX 
+					{: RESULT = "startsWith"; :}
 ;  
 /*******/
-main_expr		::= STRING_LITERAL:s concat2:c {: RESULT = s + c; :}
-				  | IDENT:i LPAREN main_expr:m1 more2:m2 RPAREN concat2:c {: RESULT = i +"("+m1+m2+")"+ c; :}
-				  | IDENT:i LPAREN  RPAREN concat2:c{: RESULT = i + "()"+c; :}
-				  | if_expr_main:i{: RESULT = i; :}
+main_expr		::= STRING_LITERAL:s concat2:c //string literal
+					{: RESULT = s + c; :} 
+				  | IDENT:i LPAREN main_expr:m1 more2:m2 RPAREN concat2:c //func call with args
+					{: RESULT = i +"("+m1+m2+")"+ c; :} 
+				  | IDENT:i LPAREN  RPAREN concat2:c //func call without args
+					{: RESULT = i + "()"+c; :} 
+				  | if_expr_main:i //if expression
+					{: RESULT = i; :} 
 ;
-more2			::= COMMA main_expr:m1 more2:m2{: RESULT = ", " + m1 + m2; :}
+more2			::= COMMA main_expr:m1 more2:m2
+					{: RESULT = ", " + m1 + m2; :}
 				  | {: RESULT = ""; :}
 ;
-concat2			::= PLUS main_expr:m{: RESULT = " + " + m; :}
-				  |{: RESULT = ""; :}
+concat2			::= PLUS main_expr:m
+					{: RESULT = " + " + m; :}
+				  | {: RESULT = ""; :}
 ;
-if_expr_main	::=IF LPAREN main_expr:e1 fix:f main_expr:e2 RPAREN //formated like this for readability; idents don't matter
+if_expr_main	::= IF LPAREN main_expr:e1 fix:f main_expr:e2 RPAREN 
 						main_expr:e3
 					ELSE
 						main_expr:e4
-				 {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :}
+					//formated like this for readability; idents don't matter
+					//different if expression is needed for main since IDENTs should be in main exprs
+				    {: RESULT = "(("+e2+"."+f+"("+e1+")"+")?"+e3+":"+e4+")"; :} //convert to ternary op
 ;
 /*******/
 

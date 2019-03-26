@@ -1,4 +1,4 @@
-package part1;
+
 
 public class Term2Node implements Node{
 	private FactorNode factorNode;

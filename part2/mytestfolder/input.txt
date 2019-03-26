@@ -28,7 +28,7 @@ findLangType(langName) {
         if(langName prefix "Java")
             "Static"
         else
-            if("script" suffix langName)
+            if(surname() +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) suffix langName)
                 "Dynamic"
             else
                 "Unknown"
@@ -36,16 +36,20 @@ findLangType(langName) {
         if ("script" suffix langName)
             "Probably Dynamic"
         else
-            "Unknown"
+            surname() +  cond_repeat(fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript"), fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()))
 }
 
 name()
 surname()
-fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript")
-surname() +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()))
+
+fullname(if("XD" prefix "XDA") surname() +  cond_repeat(fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript"), fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript")
+
+surname() +  cond_repeat(fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript"), fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()))
+
 cond_repeat("no", "Jane")
+
 findLangType("Java")
-findLangType("Javascript")
+
+findLangType(fullname(if("XD" prefix "XDA") surname() +  cond_repeat(fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript"), fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) else "pepega", " ", surname()) +  cond_repeat("yes", fullname(if("XD" prefix "XDA") "kappa" else "pepega", " ", surname())) +  findLangType("Typescript"))
+
 findLangType("Typescript")
-
-

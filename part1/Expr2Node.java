@@ -1,4 +1,3 @@
-package part1;
 
 public class Expr2Node implements Node{
 	private TermNode termNode;

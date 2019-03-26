@@ -15,16 +15,16 @@ public class Main {
 		return (("yes".startsWith(c))?((c.startsWith("yes"))?repeat(x, c):x):x);
 	}
 	public static String findLangType(String langName){
-		return ((langName.startsWith("Java"))?(("Java".startsWith(langName))?"Static":((langName.endsWith("script"))?"Dynamic":"Unknown")):((langName.endsWith("script"))?"Probably Dynamic":"Unknown"));
+		return ((langName.startsWith("Java"))?(("Java".startsWith(langName))?"Static":((langName.endsWith(surname() + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()))))?"Dynamic":"Unknown")):((langName.endsWith("script"))?"Probably Dynamic":surname() + cond_repeat(fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript"), fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()))));
 	}
 	public static void main(String args[]){
 		System.out.println(name());
 		System.out.println(surname());
-		System.out.println(fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript"));
-		System.out.println(surname() + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())));
+		System.out.println(fullname((("XDA".startsWith("XD"))?surname() + cond_repeat(fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript"), fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())):"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript"));
+		System.out.println(surname() + cond_repeat(fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript"), fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())));
 		System.out.println(cond_repeat("no", "Jane"));
 		System.out.println(findLangType("Java"));
-		System.out.println(findLangType("Javascript"));
+		System.out.println(findLangType(fullname((("XDA".startsWith("XD"))?surname() + cond_repeat(fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript"), fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())):"pepega"), " ", surname()) + cond_repeat("yes", fullname((("XDA".startsWith("XD"))?"kappa":"pepega"), " ", surname())) + findLangType("Typescript")));
 		System.out.println(findLangType("Typescript"));
 	}
 }

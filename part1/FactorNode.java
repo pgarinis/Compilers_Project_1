@@ -1,4 +1,4 @@
-package part1;
+
 
 public class FactorNode implements Node {
 	private int num;
